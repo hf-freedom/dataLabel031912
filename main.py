@@ -14,7 +14,9 @@ from processors.base import BaseProcessor
 from processors import (
     SortFirstColumnProcessor,
     CountCharProcessor,
-    SumColumnProcessor
+    SumColumnProcessor,
+    ColumnSortProcessor,
+    HighlightProcessor
 )
 
 try:
@@ -57,9 +59,11 @@ class ExcelProcessorApp:
         processor_classes = [
             SortFirstColumnProcessor,
             CountCharProcessor,
-            SumColumnProcessor
+            SumColumnProcessor,
+            ColumnSortProcessor,
+            HighlightProcessor
         ]
-        
+
         for proc_class in processor_classes:
             proc = proc_class()
             self.processors[proc.name] = proc

@@ -8,10 +8,14 @@ from .base import BaseProcessor
 from .sort_processor import SortFirstColumnProcessor
 from .count_char_processor import CountCharProcessor
 from .sum_processor import SumColumnProcessor
+from .column_sort_processor import ColumnSortProcessor
+from .highlight_processor import HighlightProcessor
 
 __all__ = [
     'BaseProcessor',
     'SortFirstColumnProcessor',
     'CountCharProcessor',
-    'SumColumnProcessor'
+    'SumColumnProcessor',
+    'ColumnSortProcessor',
+    'HighlightProcessor'
 ]
