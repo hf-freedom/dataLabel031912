@@ -4,7 +4,6 @@
 将指定列从指定行开始按顺序重新编号
 """
 
-from typing import Tuple, Dict, Any
 import pandas as pd
 from openpyxl import Workbook
 from .base import BaseProcessor
@@ -19,7 +18,7 @@ class SortFirstColumnProcessor(BaseProcessor):
     
     def __init__(self):
         """初始化处理器"""
-        super().__init__()
+        super(SortFirstColumnProcessor, self).__init__()
         self.name = "列重新编号"
         self.description = "将指定列从指定行开始按顺序重新编号"
         self.params = {
@@ -39,17 +38,16 @@ class SortFirstColumnProcessor(BaseProcessor):
             }
         }
     
-    def get_display_text(self, param_values: Dict[str, Any] = None) -> str:
+    def get_display_text(self, param_values=None):
         """获取带参数的显示文本"""
         if param_values:
             start_row = param_values.get('start_row', '')
             target_col = param_values.get('target_col', '')
             if start_row and target_col:
-                return f"将第{target_col}列从第{start_row}行开始重新编号"
+                return "将第{}列从第{}行开始重新编号".format(target_col, start_row)
         return self.description
     
-    def process(self, df: pd.DataFrame, wb: Workbook, sheet_name: str,
-                param_values: Dict[str, Any]) -> Tuple[pd.DataFrame, Workbook]:
+    def process(self, df, wb, sheet_name, param_values):
         """执行列重新编号"""
         if df.empty:
             return df, wb
