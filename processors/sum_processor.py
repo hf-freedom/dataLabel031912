@@ -4,7 +4,6 @@
 统计指定行或列的数据总和
 """
 
-from typing import Tuple, Dict, Any
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -20,7 +19,7 @@ class SumColumnProcessor(BaseProcessor):
     
     def __init__(self):
         """初始化处理器"""
-        super().__init__()
+        super(SumColumnProcessor, self).__init__()
         self.name = "统计行/列总数"
         self.description = "统计指定行或列的数据总和"
         self.params = {
@@ -40,19 +39,19 @@ class SumColumnProcessor(BaseProcessor):
             }
         }
     
-    def get_display_text(self, param_values: Dict[str, Any] = None) -> str:
+    def get_display_text(self, param_values=None):
         """获取带参数的显示文本"""
         if param_values:
             target_row = param_values.get('target_row', '')
             target_col = param_values.get('target_col', '')
             
             if target_row and not target_col:
-                return f"统计第{target_row}行总数"
+                return "统计第{}行总数".format(target_row)
             elif target_col and not target_row:
-                return f"统计第{target_col}列总数"
+                return "统计第{}列总数".format(target_col)
         return self.description
     
-    def validate_params(self, param_values: Dict[str, Any]) -> Tuple[bool, str]:
+    def validate_params(self, param_values):
         """验证参数"""
         target_row = param_values.get('target_row', '')
         target_col = param_values.get('target_col', '')
@@ -68,8 +67,7 @@ class SumColumnProcessor(BaseProcessor):
         
         return True, ""
     
-    def process(self, df: pd.DataFrame, wb: Workbook, sheet_name: str,
-                param_values: Dict[str, Any]) -> Tuple[pd.DataFrame, Workbook]:
+    def process(self, df, wb, sheet_name, param_values):
         """执行统计行/列总数"""
         if df.empty:
             return df, wb
@@ -90,11 +88,12 @@ class SumColumnProcessor(BaseProcessor):
             last_col_letter = get_column_letter(max_col)
             result_col = max_col + 1
             
-            sum_formula = f'=SUM({first_col_letter}{data_row}:{last_col_letter}{data_row})'
+            sum_formula = '=SUM({}{}:{}{})'.format(
+                first_col_letter, data_row, last_col_letter, data_row)
             
             ws.cell(row=data_row, column=result_col, value=sum_formula)
             
-            new_col_name = f"行{row_num}总数"
+            new_col_name = "行{}总数".format(row_num)
             df[new_col_name] = None
         else:
             col_num = int(target_col)
@@ -103,7 +102,8 @@ class SumColumnProcessor(BaseProcessor):
             data_end_row = max_row
             result_row = max_row + 1
             
-            sum_formula = f'=SUM({col_letter}{data_start_row}:{col_letter}{data_end_row})'
+            sum_formula = '=SUM({}{}:{}{})'.format(
+                col_letter, data_start_row, col_letter, data_end_row)
             
             ws.cell(row=result_row, column=col_num, value=sum_formula)
         

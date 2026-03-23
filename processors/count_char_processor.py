@@ -4,7 +4,6 @@
 统计指定字符在某行或某列出现的次数
 """
 
-from typing import Tuple, Dict, Any
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -20,7 +19,7 @@ class CountCharProcessor(BaseProcessor):
     
     def __init__(self):
         """初始化处理器"""
-        super().__init__()
+        super(CountCharProcessor, self).__init__()
         self.name = "统计字符出现次数"
         self.description = "统计指定字符在某行或某列出现的次数"
         self.params = {
@@ -47,7 +46,7 @@ class CountCharProcessor(BaseProcessor):
             }
         }
     
-    def get_display_text(self, param_values: Dict[str, Any] = None) -> str:
+    def get_display_text(self, param_values=None):
         """获取带参数的显示文本"""
         if param_values:
             target_string = param_values.get('target_string', '')
@@ -55,12 +54,12 @@ class CountCharProcessor(BaseProcessor):
             target_col = param_values.get('target_col', '')
             
             if target_row and not target_col:
-                return f"统计'{target_string}'在第{target_row}行出现的次数"
+                return "统计'{}'在第{}行出现的次数".format(target_string, target_row)
             elif target_col and not target_row:
-                return f"统计'{target_string}'在第{target_col}列出现的次数"
+                return "统计'{}'在第{}列出现的次数".format(target_string, target_col)
         return self.description
     
-    def validate_params(self, param_values: Dict[str, Any]) -> Tuple[bool, str]:
+    def validate_params(self, param_values):
         """验证参数"""
         target_row = param_values.get('target_row', '')
         target_col = param_values.get('target_col', '')
@@ -80,8 +79,7 @@ class CountCharProcessor(BaseProcessor):
         
         return True, ""
     
-    def process(self, df: pd.DataFrame, wb: Workbook, sheet_name: str,
-                param_values: Dict[str, Any]) -> Tuple[pd.DataFrame, Workbook]:
+    def process(self, df, wb, sheet_name, param_values):
         """执行统计字符出现次数"""
         if df.empty:
             return df, wb
@@ -103,11 +101,12 @@ class CountCharProcessor(BaseProcessor):
             last_col_letter = get_column_letter(max_col)
             result_col = max_col + 1
             
-            countif_formula = f'=COUNTIF({first_col_letter}{data_row}:{last_col_letter}{data_row},"{target_string}")'
+            countif_formula = '=COUNTIF({}{}:{}{},"{}")'.format(
+                first_col_letter, data_row, last_col_letter, data_row, target_string)
             
             ws.cell(row=data_row, column=result_col, value=countif_formula)
             
-            new_col_name = f"{target_string}计数_行{row_num}"
+            new_col_name = "{}计数_行{}".format(target_string, row_num)
             df[new_col_name] = None
         else:
             col_num = int(target_col)
@@ -116,7 +115,8 @@ class CountCharProcessor(BaseProcessor):
             data_end_row = max_row
             result_row = max_row + 1
             
-            countif_formula = f'=COUNTIF({col_letter}{data_start_row}:{col_letter}{data_end_row},"{target_string}")'
+            countif_formula = '=COUNTIF({}{}:{}{},"{}")'.format(
+                col_letter, data_start_row, col_letter, data_end_row, target_string)
             
             ws.cell(row=result_row, column=col_num, value=countif_formula)
         

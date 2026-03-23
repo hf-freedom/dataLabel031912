@@ -14,7 +14,9 @@ from processors.base import BaseProcessor
 from processors import (
     SortFirstColumnProcessor,
     CountCharProcessor,
-    SumColumnProcessor
+    SumColumnProcessor,
+    ColumnSortProcessor,
+    HighlightProcessor
 )
 
 try:
@@ -57,7 +59,9 @@ class ExcelProcessorApp:
         processor_classes = [
             SortFirstColumnProcessor,
             CountCharProcessor,
-            SumColumnProcessor
+            SumColumnProcessor,
+            ColumnSortProcessor,
+            HighlightProcessor
         ]
         
         for proc_class in processor_classes:
@@ -129,11 +133,11 @@ class ExcelProcessorApp:
             param_frame = ttk.Frame(self.param_frame)
             param_frame.pack(fill=tk.X, pady=(0, 5))
             
-            label = ttk.Label(param_frame, text=f"{param_def['label']}：")
+            label = ttk.Label(param_frame, text="{}：".format(param_def['label']))
             label.pack(side=tk.LEFT, padx=(0, 10))
             
             var = tk.StringVar()
-            var.trace_add("write", lambda *args: self._update_hint())
+            var.trace("w", lambda *args: self._update_hint())
             self.param_vars[param_name] = var
             
             entry = ttk.Entry(param_frame, textvariable=var, width=15)
@@ -247,8 +251,8 @@ class ExcelProcessorApp:
         """设置当前选择的文件"""
         self.file_path = os.path.normpath(file_path)
         self.file_label.config(text=os.path.basename(self.file_path), foreground="black")
-        self.drop_label.config(text=f"已选择：\n{os.path.basename(self.file_path)}")
-        self.status_var.set(f"已加载文件：{os.path.basename(self.file_path)}")
+        self.drop_label.config(text="已选择：\n{}".format(os.path.basename(self.file_path)))
+        self.status_var.set("已加载文件：{}".format(os.path.basename(self.file_path)))
     
     def _setup_execute_button(self, parent):
         """设置执行按钮"""
@@ -344,22 +348,22 @@ class ExcelProcessorApp:
             wb_save.close()
             wb.close()
             
-            self.status_var.set(f"处理完成！文件已保存至：{os.path.basename(output_path)}")
-            messagebox.showinfo("成功", f"处理完成！\n文件已保存至：\n{output_path}")
+            self.status_var.set("处理完成！文件已保存至：{}".format(os.path.basename(output_path)))
+            messagebox.showinfo("成功", "处理完成！\n文件已保存至：\n{}".format(output_path))
         
         except PermissionError:
             self.status_var.set("处理失败")
             messagebox.showerror("权限错误", "无法保存文件，请检查：\n1. 文件是否被其他程序打开\n2. 是否有写入权限")
         except Exception as e:
             self.status_var.set("处理失败")
-            messagebox.showerror("处理错误", f"处理过程中发生错误：\n{str(e)}")
+            messagebox.showerror("处理错误", "处理过程中发生错误：\n{}".format(str(e)))
     
     def _get_output_path(self):
         """生成输出文件路径"""
         dir_name = os.path.dirname(self.file_path)
         file_name = os.path.basename(self.file_path)
         name, ext = os.path.splitext(file_name)
-        output_name = f"{name}_processed{ext}"
+        output_name = "{}_processed{}".format(name, ext)
         output_path = os.path.join(dir_name, output_name)
         return os.path.normpath(output_path)
 

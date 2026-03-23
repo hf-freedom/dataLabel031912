@@ -4,13 +4,12 @@ Excel处理器基类模块
 定义了所有处理器必须实现的接口和属性
 """
 
-from abc import ABC, abstractmethod
-from typing import Tuple, Optional, Dict, Any
+from abc import ABCMeta, abstractmethod
 import pandas as pd
 from openpyxl import Workbook
 
 
-class BaseProcessor(ABC):
+class BaseProcessor(object):
     """
     Excel处理器抽象基类
     
@@ -32,6 +31,7 @@ class BaseProcessor(ABC):
                 - default: 默认值
                 - hint: 参数提示
     """
+    __metaclass__ = ABCMeta
     
     def __init__(self):
         """初始化处理器"""
@@ -40,8 +40,7 @@ class BaseProcessor(ABC):
         self.params = {}
     
     @abstractmethod
-    def process(self, df: pd.DataFrame, wb: Workbook, sheet_name: str,
-                param_values: Dict[str, Any]) -> Tuple[pd.DataFrame, Workbook]:
+    def process(self, df, wb, sheet_name, param_values):
         """
         处理Excel数据的核心方法
         
@@ -52,11 +51,11 @@ class BaseProcessor(ABC):
             param_values: 参数值字典，key为参数名，value为参数值
         
         返回:
-            Tuple[pd.DataFrame, Workbook]: 处理后的DataFrame和Workbook
+            tuple: (处理后的DataFrame, Workbook)
         """
         pass
     
-    def get_display_text(self, param_values: Dict[str, Any] = None) -> str:
+    def get_display_text(self, param_values=None):
         """
         获取带参数的显示文本
         
@@ -68,7 +67,7 @@ class BaseProcessor(ABC):
         """
         return self.description
     
-    def validate_params(self, param_values: Dict[str, Any]) -> Tuple[bool, str]:
+    def validate_params(self, param_values):
         """
         验证参数是否有效
         
@@ -76,19 +75,18 @@ class BaseProcessor(ABC):
             param_values: 参数值字典
         
         返回:
-            Tuple[bool, str]: (是否有效, 错误信息)
+            tuple: (是否有效, 错误信息)
         """
         for param_name, param_def in self.params.items():
             if param_def.get('required', False):
                 value = param_values.get(param_name)
                 if value is None or value == '':
-                    return False, f"请输入{param_def.get('label', param_name)}"
+                    return False, "请输入{}".format(param_def.get('label', param_name))
                 if isinstance(value, str) and not value.strip():
-                    return False, f"请输入{param_def.get('label', param_name)}"
+                    return False, "请输入{}".format(param_def.get('label', param_name))
         return True, ""
     
-    def get_param_value(self, param_values: Dict[str, Any], param_name: str, 
-                        default: Any = None) -> Any:
+    def get_param_value(self, param_values, param_name, default=None):
         """
         获取参数值，支持默认值
         
@@ -98,7 +96,7 @@ class BaseProcessor(ABC):
             default: 默认值
         
         返回:
-            Any: 参数值
+            参数值
         """
         value = param_values.get(param_name)
         if value is None or value == '':
